@@ -27,6 +27,7 @@ type FruitR struct {
 	Enabled      bool     `json:"enabled"`
 	Price        *float64 `json:"price"`
 	DiscoveredAt *Time    `json:"discovered_at"`
+	Area         []string `json:"area"`
 }
 
 type FruitW struct {
@@ -37,6 +38,7 @@ type FruitW struct {
 	Enabled      bool      `json:"enabled"`
 	Price        *float64  `json:"price"`
 	DiscoveredAt time.Time `json:"discovered_at"`
+	Area         []string  `json:"area"`
 }
 
 func TestFlow(t *testing.T) {
@@ -71,6 +73,7 @@ func TestFlow(t *testing.T) {
 			Enabled:      true,
 			Price:        &price,
 			DiscoveredAt: t1,
+			Area:         []string{"europe", "africa"},
 		})
 		require.NoError(t, err)
 		assert.NotEmpty(t, melon.ID)
@@ -80,6 +83,7 @@ func TestFlow(t *testing.T) {
 		assert.Equal(t, melon.Enabled, true)
 		assert.Equal(t, &price, melon.Price)
 		assert.Equal(t, t1.Unix(), melon.DiscoveredAt.Unix())
+		assert.Equal(t, []string{"europe", "africa"}, melon.Area)
 		watermelonID = melon.ID
 	})
 

@@ -22,8 +22,9 @@ Types support
 - [x] time
 - [x] boolean
 - [x] pointers
-- [] array
+- [x] array
 - [] map
+- [] reference
 
 Error handling
 
