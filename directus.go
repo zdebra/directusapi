@@ -10,8 +10,6 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
-
-	"github.com/samber/lo"
 )
 
 type API[R, W any] struct {
@@ -123,11 +121,50 @@ func (d API[R, W]) Insert(ctx context.Context, item W) (R, error) {
 
 func (d API[R, W]) Create(ctx context.Context, partials map[string]any) (R, error) {
 	var empty R
-	if !lo.Every(d.jsonFieldsR(), lo.Keys(partials)) {
-		return empty, fmt.Errorf("partials contain non supported field")
+	u := fmt.Sprintf("%s://%s/%s/items/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName)
+
+	bodyBytes, err := json.Marshal(partials)
+	if err != nil {
+		return empty, fmt.Errorf("marshal partials: %w", err)
 	}
 
-	panic("not implemented")
+	req, _ := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		u,
+		bytes.NewBuffer(bodyBytes),
+	)
+
+	queryValues := url.Values{}
+
+	fields := d.jsonFieldsR()
+	queryValues.Set("fields", strings.Join(fields, ","))
+
+	req.URL.RawQuery = queryValues.Encode()
+
+	req.Header.Set("Authorization", "Bearer "+d.BearerToken)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := d.HTTPClient.Do(req)
+	if err != nil {
+		return empty, fmt.Errorf("directus api execute request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		respBytes, _ := ioutil.ReadAll(resp.Body)
+		return empty, fmt.Errorf("unexpected status %s: %s", resp.Status, string(respBytes))
+	}
+
+	var respBody struct {
+		Data R `json:"data"`
+	}
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	if err != nil {
+		return empty, fmt.Errorf("decoding json response: %w", err)
+	}
+	return respBody.Data, nil
+
 }
 
 func (d API[R, W]) GetByID(ctx context.Context, id string) (R, error) {

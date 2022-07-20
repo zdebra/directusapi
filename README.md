@@ -7,7 +7,7 @@ API methods
 - [x] Authenticate
 - [x] List Item
 - [x] Insert
-- [] Create (partials)
+- [x] Create (partials)
 - [x] Get By ID
 - [x] Delete
 - [] Total Count

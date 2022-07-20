@@ -99,6 +99,16 @@ func TestFlow(t *testing.T) {
 		assert.True(t, len(fruits) > 0)
 	})
 
+	t.Run("create partials", func(t *testing.T) {
+		peach, err := api.Create(ctx, map[string]any{
+			"name": "peach",
+		})
+		require.NoError(t, err)
+		assert.NotEmpty(t, peach.ID)
+		assert.Equal(t, "peach", peach.Name)
+		assert.Empty(t, peach.Weight)
+	})
+
 	t.Run("delete item", func(t *testing.T) {
 		err := api.Delete(ctx, fmt.Sprint(watermelonID))
 		require.NoError(t, err)
