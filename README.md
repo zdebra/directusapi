@@ -15,7 +15,7 @@ API methods
 
 Types support
 
-- [] generic id?
+- [x] generic id
 - [] enumeration constants
 - [] string as primary key
 - [] float
