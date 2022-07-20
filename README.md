@@ -12,10 +12,11 @@ API methods
 - [x] Delete
 - [] Total Count
 - [x] Set Item
-- [] Update (partials)
+- [x] Update (partials)
 
 Types support
 
+- [] generic id?
 - [] enumeration constants
 - [] string as primary key
 - [] float

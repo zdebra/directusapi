@@ -81,6 +81,17 @@ func TestFlow(t *testing.T) {
 		assert.Equal(t, pasionfruit.Status, "published")
 	})
 
+	t.Run("update partials", func(t *testing.T) {
+		pasionfruit, err := api.Update(ctx, fmt.Sprint(watermelonID), map[string]any{
+			"status": "draft",
+		})
+		require.NoError(t, err)
+		assert.Equal(t, pasionfruit.ID, watermelonID)
+		assert.Equal(t, pasionfruit.Name, "pasionfruit")
+		assert.Equal(t, pasionfruit.Weight, 10)
+		assert.Equal(t, pasionfruit.Status, "draft")
+	})
+
 	t.Run("read items", func(t *testing.T) {
 		fruits, err := api.Items(ctx, None())
 		require.NoError(t, err)
