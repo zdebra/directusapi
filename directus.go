@@ -1,7 +1,6 @@
 package directusapi
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -57,45 +56,21 @@ func (d API[R, W]) Insert(ctx context.Context, item W) (R, error) {
 	var empty R
 	u := fmt.Sprintf("%s://%s/%s/items/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName)
 
-	bodyBytes, err := json.Marshal(item)
-	if err != nil {
-		return empty, fmt.Errorf("marshal item: %w", err)
-	}
-
-	req, _ := http.NewRequestWithContext(
+	req := request{
 		ctx,
 		http.MethodPost,
 		u,
-		bytes.NewBuffer(bodyBytes),
-	)
-
-	queryValues := url.Values{}
-
-	fields := d.jsonFieldsR()
-	queryValues.Set("fields", strings.Join(fields, ","))
-
-	req.URL.RawQuery = queryValues.Encode()
-
-	req.Header.Set("Authorization", "Bearer "+d.BearerToken)
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := d.HTTPClient.Do(req)
-	if err != nil {
-		return empty, fmt.Errorf("directus api execute request: %v", err)
+		map[string]string{
+			"fields": strings.Join(d.jsonFieldsR(), ","),
+		},
+		item,
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		respBytes, _ := ioutil.ReadAll(resp.Body)
-		return empty, fmt.Errorf("unexpected status %s: %s", resp.Status, string(respBytes))
-	}
-
 	var respBody struct {
 		Data R `json:"data"`
 	}
-	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	err := d.executeRequest(req, http.StatusOK, &respBody)
 	if err != nil {
-		return empty, fmt.Errorf("decoding json response: %w", err)
+		return empty, fmt.Errorf("execute insert request: %w", err)
 	}
 	return respBody.Data, nil
 }
@@ -104,45 +79,22 @@ func (d API[R, W]) Create(ctx context.Context, partials map[string]any) (R, erro
 	var empty R
 	u := fmt.Sprintf("%s://%s/%s/items/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName)
 
-	bodyBytes, err := json.Marshal(partials)
-	if err != nil {
-		return empty, fmt.Errorf("marshal partials: %w", err)
-	}
-
-	req, _ := http.NewRequestWithContext(
+	req := request{
 		ctx,
 		http.MethodPost,
 		u,
-		bytes.NewBuffer(bodyBytes),
-	)
-
-	queryValues := url.Values{}
-
-	fields := d.jsonFieldsR()
-	queryValues.Set("fields", strings.Join(fields, ","))
-
-	req.URL.RawQuery = queryValues.Encode()
-
-	req.Header.Set("Authorization", "Bearer "+d.BearerToken)
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := d.HTTPClient.Do(req)
-	if err != nil {
-		return empty, fmt.Errorf("directus api execute request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		respBytes, _ := ioutil.ReadAll(resp.Body)
-		return empty, fmt.Errorf("unexpected status %s: %s", resp.Status, string(respBytes))
+		map[string]string{
+			"fields": strings.Join(d.jsonFieldsR(), ","),
+		},
+		partials,
 	}
 
 	var respBody struct {
 		Data R `json:"data"`
 	}
-	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	err := d.executeRequest(req, http.StatusOK, &respBody)
 	if err != nil {
-		return empty, fmt.Errorf("decoding json response: %w", err)
+		return empty, fmt.Errorf("execute create request: %w", err)
 	}
 	return respBody.Data, nil
 
@@ -150,35 +102,24 @@ func (d API[R, W]) Create(ctx context.Context, partials map[string]any) (R, erro
 
 func (d API[R, W]) GetByID(ctx context.Context, id string) (R, error) {
 	u := fmt.Sprintf("%s://%s/%s/items/%s/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName, id)
-	req, _ := http.NewRequest(http.MethodGet, u, nil)
 
-	queryValues := url.Values{}
-
-	fields := d.jsonFieldsR()
-	queryValues.Set("fields", strings.Join(fields, ","))
-
-	req.URL.RawQuery = queryValues.Encode()
-
-	req.Header.Set("Authorization", "Bearer "+d.BearerToken)
-
-	var empty R
-	resp, err := d.HTTPClient.Do(req)
-	if err != nil {
-		return empty, fmt.Errorf("directus api execute request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		respBytes, _ := ioutil.ReadAll(resp.Body)
-		return empty, fmt.Errorf("unexpected status %s: %s", resp.Status, string(respBytes))
+	req := request{
+		ctx,
+		http.MethodGet,
+		u,
+		map[string]string{
+			"fields": strings.Join(d.jsonFieldsR(), ","),
+		},
+		nil,
 	}
 
 	var respBody struct {
 		Data R `json:"data"`
 	}
-	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	var empty R
+	err := d.executeRequest(req, http.StatusOK, &respBody)
 	if err != nil {
-		return empty, fmt.Errorf("decoding json response: %w", err)
+		return empty, fmt.Errorf("execute get by id request: %w", err)
 	}
 	return respBody.Data, nil
 }
@@ -187,45 +128,22 @@ func (d API[R, W]) Update(ctx context.Context, id string, partials map[string]an
 	var empty R
 	u := fmt.Sprintf("%s://%s/%s/items/%s/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName, id)
 
-	bodyBytes, err := json.Marshal(partials)
-	if err != nil {
-		return empty, fmt.Errorf("marshal partials: %w", err)
-	}
-
-	req, _ := http.NewRequestWithContext(
+	req := request{
 		ctx,
 		http.MethodPatch,
 		u,
-		bytes.NewBuffer(bodyBytes),
-	)
-
-	queryValues := url.Values{}
-
-	fields := d.jsonFieldsR()
-	queryValues.Set("fields", strings.Join(fields, ","))
-
-	req.URL.RawQuery = queryValues.Encode()
-
-	req.Header.Set("Authorization", "Bearer "+d.BearerToken)
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := d.HTTPClient.Do(req)
-	if err != nil {
-		return empty, fmt.Errorf("directus api execute request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		respBytes, _ := ioutil.ReadAll(resp.Body)
-		return empty, fmt.Errorf("unexpected status %s: %s", resp.Status, string(respBytes))
+		map[string]string{
+			"fields": strings.Join(d.jsonFieldsR(), ","),
+		},
+		partials,
 	}
 
 	var respBody struct {
 		Data R `json:"data"`
 	}
-	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	err := d.executeRequest(req, http.StatusOK, &respBody)
 	if err != nil {
-		return empty, fmt.Errorf("decoding json response: %w", err)
+		return empty, fmt.Errorf("execute update request: %w", err)
 	}
 	return respBody.Data, nil
 }
@@ -234,64 +152,39 @@ func (d API[R, W]) Set(ctx context.Context, id string, item W) (R, error) {
 	var empty R
 	u := fmt.Sprintf("%s://%s/%s/items/%s/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName, id)
 
-	bodyBytes, err := json.Marshal(item)
-	if err != nil {
-		return empty, fmt.Errorf("marshal item: %w", err)
-	}
-
-	req, _ := http.NewRequestWithContext(
+	req := request{
 		ctx,
 		http.MethodPatch,
 		u,
-		bytes.NewBuffer(bodyBytes),
-	)
-
-	queryValues := url.Values{}
-
-	fields := d.jsonFieldsR()
-	queryValues.Set("fields", strings.Join(fields, ","))
-
-	req.URL.RawQuery = queryValues.Encode()
-
-	req.Header.Set("Authorization", "Bearer "+d.BearerToken)
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := d.HTTPClient.Do(req)
-	if err != nil {
-		return empty, fmt.Errorf("directus api execute request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		respBytes, _ := ioutil.ReadAll(resp.Body)
-		return empty, fmt.Errorf("unexpected status %s: %s", resp.Status, string(respBytes))
+		map[string]string{
+			"fields": strings.Join(d.jsonFieldsR(), ","),
+		},
+		item,
 	}
 
 	var respBody struct {
 		Data R `json:"data"`
 	}
-	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	err := d.executeRequest(req, http.StatusOK, &respBody)
 	if err != nil {
-		return empty, fmt.Errorf("decoding json response: %w", err)
+		return empty, fmt.Errorf("execute set request: %w", err)
 	}
 	return respBody.Data, nil
 }
 
 func (d API[R, W]) Delete(ctx context.Context, id string) error {
 	u := fmt.Sprintf("%s://%s/%s/items/%s/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName, id)
-	req, _ := http.NewRequest(http.MethodDelete, u, nil)
-
-	req.Header.Set("Authorization", "Bearer "+d.BearerToken)
-
-	resp, err := d.HTTPClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("directus api execute request: %v", err)
+	req := request{
+		ctx,
+		http.MethodDelete,
+		u,
+		nil,
+		nil,
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusNoContent {
-		respBytes, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("unexpected status %s: %s", resp.Status, string(respBytes))
+	err := d.executeRequest(req, http.StatusNoContent, nil)
+	if err != nil {
+		return fmt.Errorf("execute delete request: %w", err)
 	}
 	return nil
 }

@@ -21,7 +21,7 @@ type request struct {
 }
 
 func (a *API[R, W]) executeRequest(r request, expectedStatus int, dest any) error {
-	if reflect.ValueOf(dest).Kind() != reflect.Ptr {
+	if dest != nil && reflect.ValueOf(dest).Kind() != reflect.Ptr {
 		return fmt.Errorf("dest has to be a pointer")
 	}
 
@@ -66,9 +66,11 @@ func (a *API[R, W]) executeRequest(r request, expectedStatus int, dest any) erro
 		return fmt.Errorf("unexpected status %s: %s", resp.Status, string(respBytes))
 	}
 
-	err = json.NewDecoder(resp.Body).Decode(dest)
-	if err != nil {
-		return fmt.Errorf("decoding json response: %w", err)
+	if dest != nil {
+		err = json.NewDecoder(resp.Body).Decode(dest)
+		if err != nil {
+			return fmt.Errorf("decoding json response: %w", err)
+		}
 	}
 
 	return nil
