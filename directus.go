@@ -8,7 +8,11 @@ import (
 	"strings"
 )
 
-type API[R, W any] struct {
+type PrimaryKey interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~string
+}
+
+type API[R, W any, PK PrimaryKey] struct {
 	Scheme         string
 	Host           string
 	Namespace      string
@@ -17,7 +21,7 @@ type API[R, W any] struct {
 	HTTPClient     *http.Client
 }
 
-func (d API[R, W]) CreateToken(ctx context.Context, email, password string) (string, error) {
+func (d API[R, W, PK]) CreateToken(ctx context.Context, email, password string) (string, error) {
 	u := fmt.Sprintf("%s://%s/%s/auth/authenticate", d.Scheme, d.Host, d.Namespace)
 
 	body := struct {
@@ -49,7 +53,7 @@ func (d API[R, W]) CreateToken(ctx context.Context, email, password string) (str
 	return respBody.Data.Token, nil
 }
 
-func (d API[R, W]) Insert(ctx context.Context, item W) (R, error) {
+func (d API[R, W, PK]) Insert(ctx context.Context, item W) (R, error) {
 	var empty R
 	u := fmt.Sprintf("%s://%s/%s/items/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName)
 
@@ -72,7 +76,7 @@ func (d API[R, W]) Insert(ctx context.Context, item W) (R, error) {
 	return respBody.Data, nil
 }
 
-func (d API[R, W]) Create(ctx context.Context, partials map[string]any) (R, error) {
+func (d API[R, W, PK]) Create(ctx context.Context, partials map[string]any) (R, error) {
 	var empty R
 	u := fmt.Sprintf("%s://%s/%s/items/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName)
 
@@ -97,8 +101,8 @@ func (d API[R, W]) Create(ctx context.Context, partials map[string]any) (R, erro
 
 }
 
-func (d API[R, W]) GetByID(ctx context.Context, id string) (R, error) {
-	u := fmt.Sprintf("%s://%s/%s/items/%s/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName, id)
+func (d API[R, W, PK]) GetByID(ctx context.Context, id PK) (R, error) {
+	u := fmt.Sprintf("%s://%s/%s/items/%s/%v", d.Scheme, d.Host, d.Namespace, d.CollectionName, id)
 
 	req := request{
 		ctx,
@@ -121,9 +125,9 @@ func (d API[R, W]) GetByID(ctx context.Context, id string) (R, error) {
 	return respBody.Data, nil
 }
 
-func (d API[R, W]) Update(ctx context.Context, id string, partials map[string]any) (R, error) {
+func (d API[R, W, PK]) Update(ctx context.Context, id PK, partials map[string]any) (R, error) {
 	var empty R
-	u := fmt.Sprintf("%s://%s/%s/items/%s/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName, id)
+	u := fmt.Sprintf("%s://%s/%s/items/%s/%v", d.Scheme, d.Host, d.Namespace, d.CollectionName, id)
 
 	req := request{
 		ctx,
@@ -145,9 +149,9 @@ func (d API[R, W]) Update(ctx context.Context, id string, partials map[string]an
 	return respBody.Data, nil
 }
 
-func (d API[R, W]) Set(ctx context.Context, id string, item W) (R, error) {
+func (d API[R, W, PK]) Set(ctx context.Context, id PK, item W) (R, error) {
 	var empty R
-	u := fmt.Sprintf("%s://%s/%s/items/%s/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName, id)
+	u := fmt.Sprintf("%s://%s/%s/items/%s/%v", d.Scheme, d.Host, d.Namespace, d.CollectionName, id)
 
 	req := request{
 		ctx,
@@ -169,8 +173,8 @@ func (d API[R, W]) Set(ctx context.Context, id string, item W) (R, error) {
 	return respBody.Data, nil
 }
 
-func (d API[R, W]) Delete(ctx context.Context, id string) error {
-	u := fmt.Sprintf("%s://%s/%s/items/%s/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName, id)
+func (d API[R, W, PK]) Delete(ctx context.Context, id PK) error {
+	u := fmt.Sprintf("%s://%s/%s/items/%s/%v", d.Scheme, d.Host, d.Namespace, d.CollectionName, id)
 	req := request{
 		ctx,
 		http.MethodDelete,
@@ -186,7 +190,7 @@ func (d API[R, W]) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (d API[R, W]) Items(ctx context.Context, q query) ([]R, error) {
+func (d API[R, W, PK]) Items(ctx context.Context, q query) ([]R, error) {
 	u := fmt.Sprintf("%s://%s/%s/items/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName)
 	qv := q.asKeyValue()
 	qv["fields"] = strings.Join(d.jsonFieldsR(), ",")
@@ -210,7 +214,7 @@ func (d API[R, W]) Items(ctx context.Context, q query) ([]R, error) {
 
 var fieldsR []string
 
-func (d API[R, W]) jsonFieldsR() []string {
+func (d API[R, W, PK]) jsonFieldsR() []string {
 	if fieldsR == nil {
 		var x R
 		t := reflect.TypeOf(x)

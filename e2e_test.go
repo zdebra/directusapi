@@ -2,7 +2,6 @@ package directusapi
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -27,7 +26,7 @@ type FruitW struct {
 func TestFlow(t *testing.T) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancelFn()
-	api := API[FruitR, FruitW]{
+	api := API[FruitR, FruitW, int]{
 		Scheme:         "http",
 		Host:           "192.168.64.3:8080",
 		Namespace:      "_",
@@ -59,7 +58,7 @@ func TestFlow(t *testing.T) {
 	})
 
 	t.Run("get by id", func(t *testing.T) {
-		melon, err := api.GetByID(ctx, fmt.Sprint(watermelonID))
+		melon, err := api.GetByID(ctx, watermelonID)
 		require.NoError(t, err)
 		assert.Equal(t, melon.ID, watermelonID)
 		assert.Equal(t, melon.Name, "watermelon")
@@ -73,7 +72,7 @@ func TestFlow(t *testing.T) {
 			Weight: 10,
 			Status: "published",
 		}
-		pasionfruit, err := api.Set(ctx, fmt.Sprint(watermelonID), melonRepl)
+		pasionfruit, err := api.Set(ctx, watermelonID, melonRepl)
 		require.NoError(t, err)
 		assert.Equal(t, pasionfruit.ID, watermelonID)
 		assert.Equal(t, pasionfruit.Name, "pasionfruit")
@@ -82,7 +81,7 @@ func TestFlow(t *testing.T) {
 	})
 
 	t.Run("update partials", func(t *testing.T) {
-		pasionfruit, err := api.Update(ctx, fmt.Sprint(watermelonID), map[string]any{
+		pasionfruit, err := api.Update(ctx, watermelonID, map[string]any{
 			"status": "draft",
 		})
 		require.NoError(t, err)
@@ -110,7 +109,7 @@ func TestFlow(t *testing.T) {
 	})
 
 	t.Run("delete item", func(t *testing.T) {
-		err := api.Delete(ctx, fmt.Sprint(watermelonID))
+		err := api.Delete(ctx, watermelonID)
 		require.NoError(t, err)
 	})
 

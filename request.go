@@ -20,7 +20,7 @@ type request struct {
 	body   any
 }
 
-func (a *API[R, W]) executeRequest(r request, expectedStatus int, dest any) error {
+func (a *API[R, W, PK]) executeRequest(r request, expectedStatus int, dest any) error {
 	if dest != nil && reflect.ValueOf(dest).Kind() != reflect.Ptr {
 		return fmt.Errorf("dest has to be a pointer")
 	}
