@@ -10,17 +10,27 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type Category string
+
+const (
+	Red   Category = "red"
+	Blue  Category = "blue"
+	Green Category = "green"
+)
+
 type FruitR struct {
-	ID     int    `json:"id"`
-	Name   string `json:"name"`
-	Weight int    `json:"weight"`
-	Status string `json:"status"`
+	ID       int      `json:"id"`
+	Name     string   `json:"name"`
+	Weight   int      `json:"weight"`
+	Status   string   `json:"status"`
+	Category Category `json:"category"`
 }
 
 type FruitW struct {
-	Name   string `json:"name"`
-	Weight int    `json:"weight"`
-	Status string `json:"status"`
+	Name     string   `json:"name"`
+	Weight   int      `json:"weight"`
+	Status   string   `json:"status"`
+	Category Category `json:"category"`
 }
 
 func TestFlow(t *testing.T) {
@@ -45,9 +55,10 @@ func TestFlow(t *testing.T) {
 	watermelonID := 0
 	t.Run("insert", func(t *testing.T) {
 		melon, err := api.Insert(ctx, FruitW{
-			Name:   "watermelon",
-			Weight: 20,
-			Status: "published",
+			Name:     "watermelon",
+			Weight:   20,
+			Status:   "published",
+			Category: Green,
 		})
 		require.NoError(t, err)
 		assert.NotEmpty(t, melon.ID)
@@ -64,6 +75,7 @@ func TestFlow(t *testing.T) {
 		assert.Equal(t, melon.Name, "watermelon")
 		assert.Equal(t, melon.Weight, 20)
 		assert.Equal(t, melon.Status, "published")
+		assert.Equal(t, melon.Category, Green)
 	})
 
 	t.Run("set item", func(t *testing.T) {
@@ -82,13 +94,15 @@ func TestFlow(t *testing.T) {
 
 	t.Run("update partials", func(t *testing.T) {
 		pasionfruit, err := api.Update(ctx, watermelonID, map[string]any{
-			"status": "draft",
+			"status":   "draft",
+			"category": Blue,
 		})
 		require.NoError(t, err)
 		assert.Equal(t, pasionfruit.ID, watermelonID)
 		assert.Equal(t, pasionfruit.Name, "pasionfruit")
 		assert.Equal(t, pasionfruit.Weight, 10)
 		assert.Equal(t, pasionfruit.Status, "draft")
+		assert.Equal(t, pasionfruit.Category, Blue)
 	})
 
 	t.Run("read items", func(t *testing.T) {

@@ -16,10 +16,11 @@ API methods
 Types support
 
 - [x] generic id
-- [] enumeration constants
+- [x] enumeration string constants
 - [] string as primary key
 - [] float
 - [] time
+- [] boolean
 
 Error handling
 
@@ -40,3 +41,4 @@ Batch operations
 Other
 
 - [] godoc
+- [] fileupload
