@@ -10,7 +10,6 @@ API methods
 - [x] Create (partials)
 - [x] Get By ID
 - [x] Delete
-- [] Total Count
 - [x] Set Item
 - [x] Update (partials)
 

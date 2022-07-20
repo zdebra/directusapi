@@ -67,11 +67,6 @@ func (d API[R, W]) CreateToken(ctx context.Context, email, password string) (str
 	return respBody.Data.Token, nil
 }
 
-func (d API[R, W]) TotalItems(ctx context.Context, q query) (int, error) {
-	// https://docs.directus.io/reference/query/#aggregation-grouping
-	panic("not implemented")
-}
-
 func (d API[R, W]) Insert(ctx context.Context, item W) (R, error) {
 	var empty R
 	u := fmt.Sprintf("%s://%s/%s/items/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName)
