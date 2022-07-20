@@ -17,10 +17,10 @@ Types support
 
 - [x] generic id
 - [x] enumeration string constants
-- [] string as primary key
+- [x] string as primary key
 - [] float
 - [] time
-- [] boolean
+- [x] boolean
 
 Error handling
 

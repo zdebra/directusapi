@@ -24,6 +24,7 @@ type FruitR struct {
 	Weight   int      `json:"weight"`
 	Status   string   `json:"status"`
 	Category Category `json:"category"`
+	Enabled  bool     `json:"enabled"`
 }
 
 type FruitW struct {
@@ -31,6 +32,7 @@ type FruitW struct {
 	Weight   int      `json:"weight"`
 	Status   string   `json:"status"`
 	Category Category `json:"category"`
+	Enabled  bool     `json:"enabled"`
 }
 
 func TestFlow(t *testing.T) {
@@ -59,12 +61,14 @@ func TestFlow(t *testing.T) {
 			Weight:   20,
 			Status:   "published",
 			Category: Green,
+			Enabled:  true,
 		})
 		require.NoError(t, err)
 		assert.NotEmpty(t, melon.ID)
 		assert.Equal(t, melon.Name, "watermelon")
 		assert.Equal(t, melon.Weight, 20)
 		assert.Equal(t, melon.Status, "published")
+		assert.Equal(t, melon.Enabled, true)
 		watermelonID = melon.ID
 	})
 
@@ -76,6 +80,7 @@ func TestFlow(t *testing.T) {
 		assert.Equal(t, melon.Weight, 20)
 		assert.Equal(t, melon.Status, "published")
 		assert.Equal(t, melon.Category, Green)
+		assert.Equal(t, melon.Enabled, true)
 	})
 
 	t.Run("set item", func(t *testing.T) {
