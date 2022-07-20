@@ -36,3 +36,7 @@ Batch operations
 - [] batch update
 - [] batch insert
 - [] batch delete
+
+Other
+
+- [] godoc
