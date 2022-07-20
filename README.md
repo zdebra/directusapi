@@ -18,9 +18,12 @@ Types support
 - [x] generic id
 - [x] enumeration string constants
 - [x] string as primary key
-- [] float
+- [x] float
 - [] time
 - [x] boolean
+- [x] pointers
+- [] array
+- [] map
 
 Error handling
 
@@ -31,6 +34,7 @@ Testing
 - [] e2e tests working locally
 - [] e2e tests working in CI
 - [] compatibility with directus v9
+- [] insert vs set
 
 Batch operations
 
@@ -42,3 +46,4 @@ Other
 
 - [] godoc
 - [] fileupload
+- [] embeded structs as W or R

@@ -25,6 +25,7 @@ type FruitR struct {
 	Status   string   `json:"status"`
 	Category Category `json:"category"`
 	Enabled  bool     `json:"enabled"`
+	Price    *float64 `json:"price"`
 }
 
 type FruitW struct {
@@ -33,6 +34,7 @@ type FruitW struct {
 	Status   string   `json:"status"`
 	Category Category `json:"category"`
 	Enabled  bool     `json:"enabled"`
+	Price    *float64 `json:"price"`
 }
 
 func TestFlow(t *testing.T) {
@@ -44,6 +46,7 @@ func TestFlow(t *testing.T) {
 		Namespace:      "_",
 		CollectionName: "fruits",
 		HTTPClient:     http.DefaultClient,
+		debug:          false,
 	}
 
 	email := "zdenek@zdebra.com"
@@ -56,12 +59,14 @@ func TestFlow(t *testing.T) {
 
 	watermelonID := 0
 	t.Run("insert", func(t *testing.T) {
+		price := 120.36
 		melon, err := api.Insert(ctx, FruitW{
 			Name:     "watermelon",
 			Weight:   20,
 			Status:   "published",
 			Category: Green,
 			Enabled:  true,
+			Price:    &price,
 		})
 		require.NoError(t, err)
 		assert.NotEmpty(t, melon.ID)
@@ -69,6 +74,7 @@ func TestFlow(t *testing.T) {
 		assert.Equal(t, melon.Weight, 20)
 		assert.Equal(t, melon.Status, "published")
 		assert.Equal(t, melon.Enabled, true)
+		assert.Equal(t, &price, melon.Price)
 		watermelonID = melon.ID
 	})
 
@@ -95,6 +101,8 @@ func TestFlow(t *testing.T) {
 		assert.Equal(t, pasionfruit.Name, "pasionfruit")
 		assert.Equal(t, pasionfruit.Weight, 10)
 		assert.Equal(t, pasionfruit.Status, "published")
+		expectedPrice := float64(0)
+		assert.Equal(t, &expectedPrice, pasionfruit.Price)
 	})
 
 	t.Run("update partials", func(t *testing.T) {

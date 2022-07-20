@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"reflect"
 )
@@ -55,11 +56,25 @@ func (a *API[R, W, PK]) executeRequest(r request, expectedStatus int, dest any) 
 	req.Header.Set("Authorization", "Bearer "+a.BearerToken)
 	req.Header.Set("Content-Type", "application/json")
 
+	if a.debug {
+		reqDump, _ := httputil.DumpRequestOut(req, true)
+		fmt.Println("--- Request start ---")
+		fmt.Println(string(reqDump))
+		fmt.Println("--- Request end ---")
+	}
+
 	resp, err := a.HTTPClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("execute request: %v", err)
 	}
 	defer resp.Body.Close()
+
+	if a.debug {
+		respDump, _ := httputil.DumpResponse(resp, true)
+		fmt.Println("--- Response start ---")
+		fmt.Println(string(respDump))
+		fmt.Println("--- Response end ---")
+	}
 
 	if resp.StatusCode != expectedStatus {
 		respBytes, _ := ioutil.ReadAll(resp.Body)

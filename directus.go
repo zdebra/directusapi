@@ -19,6 +19,7 @@ type API[R, W any, PK PrimaryKey] struct {
 	CollectionName string
 	BearerToken    string
 	HTTPClient     *http.Client
+	debug          bool
 }
 
 func (d API[R, W, PK]) CreateToken(ctx context.Context, email, password string) (string, error) {
