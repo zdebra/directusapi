@@ -32,27 +32,12 @@ func (d API[R, W]) CreateToken(ctx context.Context, email, password string) (str
 		password,
 	}
 
-	bodyBytes, err := json.Marshal(body)
-	if err != nil {
-		return "", fmt.Errorf("marshal auth request: %w", err)
-	}
-
-	req, _ := http.NewRequestWithContext(
+	req := request{
 		ctx,
 		http.MethodPost,
 		u,
-		bytes.NewBuffer(bodyBytes),
-	)
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := d.HTTPClient.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("directus api execute request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		respBytes, _ := ioutil.ReadAll(resp.Body)
-		return "", fmt.Errorf("unexpected status %s: %s", resp.Status, string(respBytes))
+		nil,
+		body,
 	}
 
 	var respBody struct {
@@ -60,9 +45,10 @@ func (d API[R, W]) CreateToken(ctx context.Context, email, password string) (str
 			Token string `json:"token"`
 		} `json:"data"`
 	}
-	err = json.NewDecoder(resp.Body).Decode(&respBody)
+
+	err := d.executeRequest(req, http.StatusOK, &respBody)
 	if err != nil {
-		return "", fmt.Errorf("decoding json response: %w", err)
+		return "", fmt.Errorf("execute create token request: %w", err)
 	}
 	return respBody.Data.Token, nil
 }
