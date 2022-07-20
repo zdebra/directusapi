@@ -2,11 +2,8 @@ package directusapi
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"net/url"
 	"reflect"
 	"strings"
 )
@@ -191,55 +188,24 @@ func (d API[R, W]) Delete(ctx context.Context, id string) error {
 
 func (d API[R, W]) Items(ctx context.Context, q query) ([]R, error) {
 	u := fmt.Sprintf("%s://%s/%s/items/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName)
-	req, _ := http.NewRequest(http.MethodGet, u, nil)
+	qv := q.asKeyValue()
+	qv["fields"] = strings.Join(d.jsonFieldsR(), ",")
 
-	queryValues := url.Values{}
-
-	fields := d.jsonFieldsR()
-	queryValues.Set("fields", strings.Join(fields, ","))
-	buildQuery(queryValues, q)
-
-	req.URL.RawQuery = queryValues.Encode()
-
-	req.Header.Set("Authorization", "Bearer "+d.BearerToken)
-
-	resp, err := d.HTTPClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("directus api query: %v", err)
+	req := request{
+		ctx,
+		http.MethodGet,
+		u,
+		qv,
+		nil,
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		respBytes, _ := ioutil.ReadAll(resp.Body)
-		return nil, fmt.Errorf("unexpected status %s: %s", resp.Status, string(respBytes))
-	}
-
 	var respBody struct {
 		Data []R `json:"data"`
 	}
-	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	err := d.executeRequest(req, http.StatusOK, &respBody)
 	if err != nil {
-		return nil, fmt.Errorf("decoding json response: %w", err)
+		return nil, fmt.Errorf("execute items request: %w", err)
 	}
 	return respBody.Data, nil
-}
-
-func buildQuery(queryValues url.Values, q query) {
-	for k, v := range q.eqFilter {
-		queryValues.Set(
-			fmt.Sprintf("filter[%s][eq]", k),
-			v,
-		)
-	}
-	if len(q.sort) > 0 {
-		queryValues.Set("sort", strings.Join(q.sort, ","))
-	}
-	if q.limit != nil {
-		queryValues.Set("limit", fmt.Sprint(q.limit))
-	}
-	if q.offset != nil {
-		queryValues.Set("offset", fmt.Sprint(q.offset))
-	}
 }
 
 var fieldsR []string

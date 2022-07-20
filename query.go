@@ -1,5 +1,10 @@
 package directusapi
 
+import (
+	"fmt"
+	"strings"
+)
+
 type query struct {
 	eqFilter  map[string]string
 	sort      []string
@@ -70,4 +75,21 @@ func (q query) Search(str string) query {
 
 func Search(str string) query {
 	return None().Search(str)
+}
+
+func (q query) asKeyValue() map[string]string {
+	out := map[string]string{}
+	for k, v := range q.eqFilter {
+		out[fmt.Sprintf("filter[%s][eq]", k)] = v
+	}
+	if len(q.sort) > 0 {
+		out["sort"] = strings.Join(q.sort, ",")
+	}
+	if q.limit != nil {
+		out["limit"] = fmt.Sprint(q.limit)
+	}
+	if q.offset != nil {
+		out["offset"] = fmt.Sprint(q.offset)
+	}
+	return out
 }
