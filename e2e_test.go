@@ -19,22 +19,24 @@ const (
 )
 
 type FruitR struct {
-	ID       int      `json:"id"`
-	Name     string   `json:"name"`
-	Weight   int      `json:"weight"`
-	Status   string   `json:"status"`
-	Category Category `json:"category"`
-	Enabled  bool     `json:"enabled"`
-	Price    *float64 `json:"price"`
+	ID           int      `json:"id"`
+	Name         string   `json:"name"`
+	Weight       int      `json:"weight"`
+	Status       string   `json:"status"`
+	Category     Category `json:"category"`
+	Enabled      bool     `json:"enabled"`
+	Price        *float64 `json:"price"`
+	DiscoveredAt *Time    `json:"discovered_at"`
 }
 
 type FruitW struct {
-	Name     string   `json:"name"`
-	Weight   int      `json:"weight"`
-	Status   string   `json:"status"`
-	Category Category `json:"category"`
-	Enabled  bool     `json:"enabled"`
-	Price    *float64 `json:"price"`
+	Name         string    `json:"name"`
+	Weight       int       `json:"weight"`
+	Status       string    `json:"status"`
+	Category     Category  `json:"category"`
+	Enabled      bool      `json:"enabled"`
+	Price        *float64  `json:"price"`
+	DiscoveredAt time.Time `json:"discovered_at"`
 }
 
 func TestFlow(t *testing.T) {
@@ -58,15 +60,17 @@ func TestFlow(t *testing.T) {
 	// todo: create collection first
 
 	watermelonID := 0
+	t1 := time.Date(2022, 5, 5, 10, 30, 0, 0, time.UTC)
 	t.Run("insert", func(t *testing.T) {
 		price := 120.36
 		melon, err := api.Insert(ctx, FruitW{
-			Name:     "watermelon",
-			Weight:   20,
-			Status:   "published",
-			Category: Green,
-			Enabled:  true,
-			Price:    &price,
+			Name:         "watermelon",
+			Weight:       20,
+			Status:       "published",
+			Category:     Green,
+			Enabled:      true,
+			Price:        &price,
+			DiscoveredAt: t1,
 		})
 		require.NoError(t, err)
 		assert.NotEmpty(t, melon.ID)
@@ -75,6 +79,7 @@ func TestFlow(t *testing.T) {
 		assert.Equal(t, melon.Status, "published")
 		assert.Equal(t, melon.Enabled, true)
 		assert.Equal(t, &price, melon.Price)
+		assert.Equal(t, t1.Unix(), melon.DiscoveredAt.Unix())
 		watermelonID = melon.ID
 	})
 

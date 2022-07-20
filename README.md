@@ -19,7 +19,7 @@ Types support
 - [x] enumeration string constants
 - [x] string as primary key
 - [x] float
-- [] time
+- [x] time
 - [x] boolean
 - [x] pointers
 - [] array
