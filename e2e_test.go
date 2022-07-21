@@ -19,26 +19,28 @@ const (
 )
 
 type FruitR struct {
-	ID           int      `json:"id"`
-	Name         string   `json:"name"`
-	Weight       int      `json:"weight"`
-	Status       string   `json:"status"`
-	Category     Category `json:"category"`
-	Enabled      bool     `json:"enabled"`
-	Price        *float64 `json:"price"`
-	DiscoveredAt *Time    `json:"discovered_at"`
-	Area         []string `json:"area"`
+	ID           int               `json:"id"`
+	Name         string            `json:"name"`
+	Weight       int               `json:"weight"`
+	Status       string            `json:"status"`
+	Category     Category          `json:"category"`
+	Enabled      bool              `json:"enabled"`
+	Price        *float64          `json:"price"`
+	DiscoveredAt *Time             `json:"discovered_at"`
+	Area         []string          `json:"area"`
+	Favorites    map[string]string `json:"favorites"`
 }
 
 type FruitW struct {
-	Name         string    `json:"name"`
-	Weight       int       `json:"weight"`
-	Status       string    `json:"status"`
-	Category     Category  `json:"category"`
-	Enabled      bool      `json:"enabled"`
-	Price        *float64  `json:"price"`
-	DiscoveredAt time.Time `json:"discovered_at"`
-	Area         []string  `json:"area"`
+	Name         string            `json:"name"`
+	Weight       int               `json:"weight"`
+	Status       string            `json:"status"`
+	Category     Category          `json:"category"`
+	Enabled      bool              `json:"enabled"`
+	Price        *float64          `json:"price"`
+	DiscoveredAt time.Time         `json:"discovered_at"`
+	Area         []string          `json:"area"`
+	Favorites    map[string]string `json:"favorites"`
 }
 
 func TestFlow(t *testing.T) {
@@ -50,7 +52,7 @@ func TestFlow(t *testing.T) {
 		Namespace:      "_",
 		CollectionName: "fruits",
 		HTTPClient:     http.DefaultClient,
-		debug:          false,
+		debug:          true,
 	}
 
 	email := "zdenek@zdebra.com"
@@ -74,6 +76,9 @@ func TestFlow(t *testing.T) {
 			Price:        &price,
 			DiscoveredAt: t1,
 			Area:         []string{"europe", "africa"},
+			Favorites: map[string]string{
+				"josef": "10",
+			},
 		})
 		require.NoError(t, err)
 		assert.NotEmpty(t, melon.ID)
@@ -84,6 +89,9 @@ func TestFlow(t *testing.T) {
 		assert.Equal(t, &price, melon.Price)
 		assert.Equal(t, t1.Unix(), melon.DiscoveredAt.Unix())
 		assert.Equal(t, []string{"europe", "africa"}, melon.Area)
+		assert.Equal(t, map[string]string{
+			"josef": "10",
+		}, melon.Favorites)
 		watermelonID = melon.ID
 	})
 

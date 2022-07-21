@@ -243,8 +243,8 @@ func iterateFields(t reflect.Type, prefix string) []string {
 				p = tagVal
 			}
 			fields = append(fields, iterateFields(f.Type, p)...)
-		case reflect.Map:
-			panic("map is not implemented")
+		// case reflect.Map:
+		// 	panic("map is not implemented")
 		default:
 			// field is not nested
 			v := tagVal

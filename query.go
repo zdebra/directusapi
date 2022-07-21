@@ -6,21 +6,42 @@ import (
 )
 
 type query struct {
-	eqFilter  map[string]string
-	sort      []string
-	limit     *int
-	offset    *int
-	searchStr *string
+	eqFilter    map[string]string
+	nEqFilter   map[string]string
+	nNullFilter []string
+	sort        []string
+	limit       *int
+	offset      *int
+	searchStr   *string
 }
 
 func None() query {
 	return query{
 		map[string]string{},
+		map[string]string{},
+		[]string{},
 		[]string{},
 		nil,
 		nil,
 		nil,
 	}
+}
+
+func (q query) Nnull(k string) query {
+	q.nNullFilter = append(q.nNullFilter, k)
+	return q
+}
+
+func Nnull(k string) query {
+	return None().Nnull(k)
+}
+func (q query) Neq(k, v string) query {
+	q.nEqFilter[k] = v
+	return q
+}
+
+func Neq(k, v string) query {
+	return None().Eq(k, v)
 }
 
 func (q query) Eq(k, v string) query {
@@ -81,6 +102,12 @@ func (q query) asKeyValue() map[string]string {
 	out := map[string]string{}
 	for k, v := range q.eqFilter {
 		out[fmt.Sprintf("filter[%s][eq]", k)] = v
+	}
+	for k, v := range q.nEqFilter {
+		out[fmt.Sprintf("filter[%s][neq]", k)] = v
+	}
+	for _, v := range q.nNullFilter {
+		out[fmt.Sprintf("filter[%s][nnull]", v)] = ""
 	}
 	if len(q.sort) > 0 {
 		out["sort"] = strings.Join(q.sort, ",")

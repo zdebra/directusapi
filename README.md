@@ -23,8 +23,9 @@ Types support
 - [x] boolean
 - [x] pointers
 - [x] array
-- [] map
+- [x] object (there are known issues, I was only able to make it working with map[string]string)
 - [] reference
+- [] array of objects (repeater)
 
 Error handling
 
