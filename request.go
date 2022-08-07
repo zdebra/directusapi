@@ -133,7 +133,7 @@ func valFromReflectVal(refVal reflect.Value) any {
 		return refVal.Bool()
 	case reflect.String:
 		return refVal.String()
-	case reflect.Slice:
+	case reflect.Slice, reflect.Array:
 		size := refVal.Len()
 		items := []any{}
 		for j := 0; j < size; j++ {
@@ -143,7 +143,7 @@ func valFromReflectVal(refVal reflect.Value) any {
 		return items
 	case reflect.Struct:
 		return mapByStructTag(refVal.Interface())
-	case reflect.Array, reflect.Map, reflect.Pointer:
+	case reflect.Map, reflect.Pointer:
 		panic("not implemented " + refVal.String())
 	default:
 		panic("unsupported field type")

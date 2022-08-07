@@ -22,6 +22,12 @@ type SliceStruct struct {
 	// todo: add slice of pointers
 }
 
+type ArrayStruct struct {
+	StringArray [5]string `directus:"str-array-val"`
+	IntSlice    [1]int    `directus:"int-array-val"`
+	BoolSlice   [2]bool   `directus:"bool-array-val"`
+}
+
 func TestCustomMarshal(t *testing.T) {
 	t.Run("primitive struct", func(t *testing.T) {
 		primitiveStruct := PrimitiveStruct{
@@ -61,6 +67,29 @@ func TestCustomMarshal(t *testing.T) {
 		require.NoError(t, err)
 
 		expectedResult := `{"str-slice-val":["a","b","c"],"int-slice-val":[12,45,2],"bool-slice-val":[true,true,false,true],"struct-slice-val":[{"str-val":"1","float-val":1.1,"int-val":1,"uint-val":1},{"str-val":"2","float-val":2.2,"int-val":2,"uint-val":2}]}`
+		assert.Equal(t, expectedResult, string(jsonBytes))
+	})
+
+	t.Run("struct with array", func(t *testing.T) {
+		arrayStruct := ArrayStruct{
+			StringArray: [5]string{
+				"a",
+				"b",
+				"c",
+				"d",
+				"e",
+			},
+			IntSlice: [1]int{
+				10,
+			},
+			BoolSlice: [2]bool{
+				true,
+				false,
+			},
+		}
+		jsonBytes, err := jsonMarshal(arrayStruct)
+		require.NoError(t, err)
+		expectedResult := `{"str-array-val":["a","b","c","d","e"],"int-array-val":[10],"bool-array-val":[true,false]}`
 		assert.Equal(t, expectedResult, string(jsonBytes))
 	})
 }
