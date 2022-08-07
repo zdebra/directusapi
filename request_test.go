@@ -118,5 +118,14 @@ func TestCustomMarshal(t *testing.T) {
 
 		expectedResult := `{"str-int-map-val":{"a":2,"b":3},"str-primitive-map-val":{"a":{"str-val":"a","float-val":2.3,"int-val":-2,"uint-val":4}}}`
 		assert.Equal(t, expectedResult, string(jsonBytes))
+
+		_, err = jsonMarshal(struct {
+			NonStringKey map[PrimitiveStruct]string `directus:"invalid-key-type"`
+		}{
+			NonStringKey: map[PrimitiveStruct]string{
+				{}: "str-val",
+			},
+		})
+		assert.Error(t, err)
 	})
 }
