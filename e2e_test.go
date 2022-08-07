@@ -19,28 +19,35 @@ const (
 )
 
 type FruitR struct {
-	ID           int               `json:"id"`
-	Name         string            `json:"name"`
-	Weight       int               `json:"weight"`
-	Status       string            `json:"status"`
-	Category     Category          `json:"category"`
-	Enabled      bool              `json:"enabled"`
-	Price        *float64          `json:"price"`
-	DiscoveredAt *Time             `json:"discovered_at"`
-	Area         []string          `json:"area"`
-	Favorites    map[string]string `json:"favorites"`
+	ID           int               `directus:"id"`
+	Name         string            `directus:"name"`
+	Weight       int               `directus:"weight"`
+	Status       string            `directus:"status"`
+	Category     Category          `directus:"category"`
+	Enabled      bool              `directus:"enabled"`
+	Price        *float64          `directus:"price"`
+	DiscoveredAt *Time             `directus:"discovered_at"`
+	Area         []string          `directus:"area"`
+	Favorites    map[string]string `directus:"favorites"`
+	// Poc          *UserR            `directus:"poc"`
+}
+
+type UserR struct {
+	ID    int    `directus:"id"`
+	Email string `directus:"email"`
 }
 
 type FruitW struct {
-	Name         string            `json:"name"`
-	Weight       int               `json:"weight"`
-	Status       string            `json:"status"`
-	Category     Category          `json:"category"`
-	Enabled      bool              `json:"enabled"`
-	Price        *float64          `json:"price"`
-	DiscoveredAt time.Time         `json:"discovered_at"`
-	Area         []string          `json:"area"`
-	Favorites    map[string]string `json:"favorites"`
+	Name         string            `directus:"name"`
+	Weight       int               `directus:"weight"`
+	Status       string            `directus:"status"`
+	Category     Category          `directus:"category"`
+	Enabled      bool              `directus:"enabled"`
+	Price        *float64          `directus:"price"`
+	DiscoveredAt Time              `directus:"discovered_at"`
+	Area         []string          `directus:"area"`
+	Favorites    map[string]string `directus:"favorites"`
+	// PocID        *int              `directus:"poc"`
 }
 
 func TestFlow(t *testing.T) {
@@ -52,7 +59,7 @@ func TestFlow(t *testing.T) {
 		Namespace:      "_",
 		CollectionName: "fruits",
 		HTTPClient:     http.DefaultClient,
-		debug:          true,
+		debug:          false,
 	}
 
 	email := "zdenek@zdebra.com"
@@ -74,11 +81,12 @@ func TestFlow(t *testing.T) {
 			Category:     Green,
 			Enabled:      true,
 			Price:        &price,
-			DiscoveredAt: t1,
+			DiscoveredAt: Time{t1},
 			Area:         []string{"europe", "africa"},
 			Favorites: map[string]string{
 				"josef": "10",
 			},
+			// PocID: lo.ToPtr(1),
 		})
 		require.NoError(t, err)
 		assert.NotEmpty(t, melon.ID)
@@ -92,6 +100,10 @@ func TestFlow(t *testing.T) {
 		assert.Equal(t, map[string]string{
 			"josef": "10",
 		}, melon.Favorites)
+		// assert.Equal(t, &UserR{
+		// 	ID:    1,
+		// 	Email: email,
+		// }, melon.Poc)
 		watermelonID = melon.ID
 	})
 

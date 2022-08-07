@@ -49,3 +49,8 @@ Other
 - [] godoc
 - [] fileupload
 - [] embeded structs as W or R
+
+# Known limitations
+
+- no custom json.Marshaler implementations are supported because the tool determines all cms fields based on struct json tags (_Should custom tags be used instead?_)
+- custom directusapi.Time implementation has to be used for datetime files

@@ -226,10 +226,11 @@ func (d API[R, W, PK]) jsonFieldsR() []string {
 
 func iterateFields(t reflect.Type, prefix string) []string {
 	fields := []string{}
+	// jsonMarshaler := reflect.TypeOf((*json.Marshaler)(nil)).Elem()
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		tagVal := ""
-		if v, ok := f.Tag.Lookup("json"); ok {
+		if v, ok := f.Tag.Lookup("directus"); ok {
 			tagVal = v
 		} else {
 			tagVal = f.Name
@@ -243,6 +244,31 @@ func iterateFields(t reflect.Type, prefix string) []string {
 				p = tagVal
 			}
 			fields = append(fields, iterateFields(f.Type, p)...)
+		// case reflect.Pointer:
+		// 	fv := f.Type.Elem()
+		// 	if f.Type.Implements(jsonMarshaler) {
+		// 		fmt.Printf("YYYYYYAY %s\n", f.Type.String())
+		// 	}
+		// 	if fv.Implements(jsonMarshaler) {
+		// 		fmt.Printf("elem YYYYYYAY %s\n", fv.String())
+		// 	}
+
+		// case reflect.Pointer:
+		// 	if f.Type.Elem().Kind() != reflect.Struct {
+		// 		v := tagVal
+		// 		if prefix != "" {
+		// 			v = prefix + "." + tagVal
+		// 		}
+		// 		fields = append(fields, v)
+		// 	} else {
+		// 		p := prefix
+		// 		if p != "" {
+		// 			p = p + "." + tagVal
+		// 		} else {
+		// 			p = tagVal
+		// 		}
+		// 		fields = append(fields, iterateFields(f.Type, p)...)
+		// 	}
 		// case reflect.Map:
 		// 	panic("map is not implemented")
 		default:
