@@ -28,6 +28,11 @@ type ArrayStruct struct {
 	BoolSlice   [2]bool   `directus:"bool-array-val"`
 }
 
+type MapStruct struct {
+	StringToIntMap    map[string]uint8           `directus:"str-int-map-val"`
+	StringToPrimitive map[string]PrimitiveStruct `directus:"str-primitive-map-val"`
+}
+
 func TestCustomMarshal(t *testing.T) {
 	t.Run("primitive struct", func(t *testing.T) {
 		primitiveStruct := PrimitiveStruct{
@@ -90,6 +95,28 @@ func TestCustomMarshal(t *testing.T) {
 		jsonBytes, err := jsonMarshal(arrayStruct)
 		require.NoError(t, err)
 		expectedResult := `{"str-array-val":["a","b","c","d","e"],"int-array-val":[10],"bool-array-val":[true,false]}`
+		assert.Equal(t, expectedResult, string(jsonBytes))
+	})
+
+	t.Run("struct with map", func(t *testing.T) {
+		mapStruct := MapStruct{
+			StringToIntMap: map[string]uint8{
+				"a": 2,
+				"b": 3,
+			},
+			StringToPrimitive: map[string]PrimitiveStruct{
+				"a": {
+					StrVal:   "a",
+					FloatVal: 2.3,
+					IntVal:   -2,
+					UintVal:  4,
+				},
+			},
+		}
+		jsonBytes, err := jsonMarshal(mapStruct)
+		require.NoError(t, err)
+
+		expectedResult := `{"str-int-map-val":{"a":2,"b":3},"str-primitive-map-val":{"a":{"str-val":"a","float-val":2.3,"int-val":-2,"uint-val":4}}}`
 		assert.Equal(t, expectedResult, string(jsonBytes))
 	})
 }
