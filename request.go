@@ -114,22 +114,38 @@ func mapByStructTag(inp any) OrderedMap {
 			// field has no tag, skipping the field
 			continue
 		}
-		switch fieldVal.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			output = append(output, KeyVal{directusFieldName, fieldVal.Int()})
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			output = append(output, KeyVal{directusFieldName, fieldVal.Uint()})
-		case reflect.Float32, reflect.Float64:
-			output = append(output, KeyVal{directusFieldName, fieldVal.Float()})
-		case reflect.Bool:
-			output = append(output, KeyVal{directusFieldName, fieldVal.Bool()})
-		case reflect.String:
-			output = append(output, KeyVal{directusFieldName, fieldVal.String()})
-		case reflect.Array, reflect.Struct, reflect.Slice, reflect.Map:
-			panic("not implemented")
-		default:
-			panic("unsupported field type")
-		}
+		key := directusFieldName
+		val := valFromReflectVal(fieldVal)
+		output = append(output, KeyVal{key, val})
 	}
 	return output
+}
+
+func valFromReflectVal(refVal reflect.Value) any {
+	switch refVal.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return refVal.Int()
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return refVal.Uint()
+	case reflect.Float32, reflect.Float64:
+		return refVal.Float()
+	case reflect.Bool:
+		return refVal.Bool()
+	case reflect.String:
+		return refVal.String()
+	case reflect.Slice:
+		size := refVal.Len()
+		items := []any{}
+		for j := 0; j < size; j++ {
+			collectionItemVal := refVal.Index(j)
+			items = append(items, valFromReflectVal(collectionItemVal))
+		}
+		return items
+	case reflect.Struct:
+		return mapByStructTag(refVal.Interface())
+	case reflect.Array, reflect.Map, reflect.Pointer:
+		panic("not implemented " + refVal.String())
+	default:
+		panic("unsupported field type")
+	}
 }
