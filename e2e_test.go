@@ -29,6 +29,7 @@ type FruitR struct {
 	DiscoveredAt *Time             `json:"discovered_at"`
 	Area         []string          `json:"area"`
 	Favorites    map[string]string `json:"favorites"`
+	LeField      UserR             `json:"lefield"`
 	// Poc          *UserR            `json:"poc"`
 }
 
@@ -47,6 +48,7 @@ type FruitW struct {
 	DiscoveredAt Time              `json:"discovered_at"`
 	Area         []string          `json:"area"`
 	Favorites    map[string]string `json:"favorites"`
+	LeFieldRef   int               `json:"lefield"`
 	// PocID        *int              `json:"poc"`
 }
 
@@ -86,6 +88,7 @@ func TestFlow(t *testing.T) {
 			Favorites: map[string]string{
 				"josef": "10",
 			},
+			LeFieldRef: 1,
 			// PocID: lo.ToPtr(1),
 		})
 		require.NoError(t, err)
@@ -100,6 +103,10 @@ func TestFlow(t *testing.T) {
 		assert.Equal(t, map[string]string{
 			"josef": "10",
 		}, melon.Favorites)
+		assert.Equal(t, UserR{
+			ID:    1,
+			Email: email,
+		}, melon.LeField)
 		// assert.Equal(t, &UserR{
 		// 	ID:    1,
 		// 	Email: email,
@@ -120,9 +127,10 @@ func TestFlow(t *testing.T) {
 
 	t.Run("set item", func(t *testing.T) {
 		melonRepl := FruitW{
-			Name:   "pasionfruit",
-			Weight: 10,
-			Status: "published",
+			Name:       "pasionfruit",
+			Weight:     10,
+			Status:     "published",
+			LeFieldRef: 1,
 		}
 		pasionfruit, err := api.Set(ctx, watermelonID, melonRepl)
 		require.NoError(t, err)
@@ -156,12 +164,17 @@ func TestFlow(t *testing.T) {
 
 	t.Run("create partials", func(t *testing.T) {
 		peach, err := api.Create(ctx, map[string]any{
-			"name": "peach",
+			"name":    "peach",
+			"lefield": 1,
 		})
 		require.NoError(t, err)
 		assert.NotEmpty(t, peach.ID)
 		assert.Equal(t, "peach", peach.Name)
 		assert.Empty(t, peach.Weight)
+		assert.Equal(t, UserR{
+			ID:    1,
+			Email: email,
+		}, peach.LeField)
 	})
 
 	t.Run("delete item", func(t *testing.T) {

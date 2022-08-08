@@ -84,7 +84,6 @@ func (a *API[R, W, PK]) executeRequest(r request, expectedStatus int, dest any) 
 	}
 
 	if dest != nil {
-		// todo: custom json unmarshal based on custom tag
 		err = json.NewDecoder(resp.Body).Decode(dest)
 		if err != nil {
 			return fmt.Errorf("decoding json response: %w", err)
