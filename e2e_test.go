@@ -19,35 +19,35 @@ const (
 )
 
 type FruitR struct {
-	ID           int               `directus:"id"`
-	Name         string            `directus:"name"`
-	Weight       int               `directus:"weight"`
-	Status       string            `directus:"status"`
-	Category     Category          `directus:"category"`
-	Enabled      bool              `directus:"enabled"`
-	Price        *float64          `directus:"price"`
-	DiscoveredAt *Time             `directus:"discovered_at"`
-	Area         []string          `directus:"area"`
-	Favorites    map[string]string `directus:"favorites"`
-	// Poc          *UserR            `directus:"poc"`
+	ID           int               `json:"id"`
+	Name         string            `json:"name"`
+	Weight       int               `json:"weight"`
+	Status       string            `json:"status"`
+	Category     Category          `json:"category"`
+	Enabled      bool              `json:"enabled"`
+	Price        *float64          `json:"price"`
+	DiscoveredAt *Time             `json:"discovered_at"`
+	Area         []string          `json:"area"`
+	Favorites    map[string]string `json:"favorites"`
+	// Poc          *UserR            `json:"poc"`
 }
 
 type UserR struct {
-	ID    int    `directus:"id"`
-	Email string `directus:"email"`
+	ID    int    `json:"id"`
+	Email string `json:"email"`
 }
 
 type FruitW struct {
-	Name         string            `directus:"name"`
-	Weight       int               `directus:"weight"`
-	Status       string            `directus:"status"`
-	Category     Category          `directus:"category"`
-	Enabled      bool              `directus:"enabled"`
-	Price        *float64          `directus:"price"`
-	DiscoveredAt Time              `directus:"discovered_at"`
-	Area         []string          `directus:"area"`
-	Favorites    map[string]string `directus:"favorites"`
-	// PocID        *int              `directus:"poc"`
+	Name         string            `json:"name"`
+	Weight       int               `json:"weight"`
+	Status       string            `json:"status"`
+	Category     Category          `json:"category"`
+	Enabled      bool              `json:"enabled"`
+	Price        *float64          `json:"price"`
+	DiscoveredAt Time              `json:"discovered_at"`
+	Area         []string          `json:"area"`
+	Favorites    map[string]string `json:"favorites"`
+	// PocID        *int              `json:"poc"`
 }
 
 func TestFlow(t *testing.T) {
@@ -59,7 +59,7 @@ func TestFlow(t *testing.T) {
 		Namespace:      "_",
 		CollectionName: "fruits",
 		HTTPClient:     http.DefaultClient,
-		debug:          false,
+		debug:          true,
 	}
 
 	email := "zdenek@zdebra.com"

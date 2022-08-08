@@ -52,5 +52,6 @@ Other
 
 # Known limitations
 
-- no custom json.Marshaler implementations are supported because the tool determines all cms fields based on struct json tags (_Should custom tags be used instead?_)
+- no custom json.Marshaler implementations are supported because the tool determines all cms fields based on struct json tags
+- no custom tag for determining fields since custom json unmarshal is hard and error prone
 - custom directusapi.Time implementation has to be used for datetime files

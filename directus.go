@@ -230,7 +230,7 @@ func iterateFields(t reflect.Type, prefix string) []string {
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		tagVal := ""
-		if v, ok := f.Tag.Lookup("directus"); ok {
+		if v, ok := f.Tag.Lookup(tagName); ok {
 			tagVal = v
 		} else {
 			tagVal = f.Name
