@@ -2,9 +2,14 @@ package directusapi
 
 import (
 	"context"
+	"fmt"
+	"io/ioutil"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
+
+	_ "embed"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -57,20 +62,26 @@ func TestFlow(t *testing.T) {
 	defer cancelFn()
 	api := API[FruitR, FruitW, int]{
 		Scheme:         "http",
-		Host:           "192.168.64.3:8080",
+		Host:           "localhost:8080",
 		Namespace:      "_",
 		CollectionName: "fruits",
 		HTTPClient:     http.DefaultClient,
 		debug:          true,
 	}
 
-	email := "zdenek@zdebra.com"
-	password := "hovno"
+	email := "email@example.com"
+	password := "d1r3ctu5"
 	token, err := api.CreateToken(ctx, email, password)
 	require.NoError(t, err)
 	api.BearerToken = token
 
-	// todo: create collection first
+	// cleanup db before start
+	_ = dropCollection(token, "http", "localhost:8080", "_", "fruits")
+
+	err = createCollection(token, "http", "localhost:8080", "_")
+	if err != nil {
+		panic(err)
+	}
 
 	watermelonID := 0
 	t1 := time.Date(2022, 5, 5, 10, 30, 0, 0, time.UTC)
@@ -89,7 +100,7 @@ func TestFlow(t *testing.T) {
 				"josef": "10",
 			},
 			LeFieldRef: 1,
-			// PocID: lo.ToPtr(1),
+			// PocID:      lo.ToPtr(1),
 		})
 		require.NoError(t, err)
 		assert.NotEmpty(t, melon.ID)
@@ -181,7 +192,45 @@ func TestFlow(t *testing.T) {
 		err := api.Delete(ctx, watermelonID)
 		require.NoError(t, err)
 	})
+}
 
-	// todo: drop collection
+//go:embed test_collection.json
+var createCollBody string
 
+func createCollection(apiToken, scheme, hostname, project string) error {
+	u := fmt.Sprintf("%s://%s/%s/collections", scheme, hostname, project)
+
+	req, _ := http.NewRequest(http.MethodPost, u, strings.NewReader(createCollBody))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+apiToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		b, _ := ioutil.ReadAll(resp.Body)
+		return fmt.Errorf("invalid status code %s: %q", resp.Status, string(b))
+	}
+
+	return nil
+}
+
+func dropCollection(apiToken, scheme, hostname, project, collectionName string) error {
+	u := fmt.Sprintf("%s://%s/%s/collections/%s", scheme, hostname, project, collectionName)
+
+	req, _ := http.NewRequest(http.MethodDelete, u, nil)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+apiToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("invalid status code %s", resp.Status)
+	}
+	return nil
 }

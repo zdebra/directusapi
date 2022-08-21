@@ -1,11 +1,13 @@
-version: "3"
-
-networks:
-  directus:
+version: "3.1"
 
 services:
   mysql:
     image: mysql:5.7
+    healthcheck:
+      test: ["CMD-SHELL", 'mysql --database=$$MYSQL_DATABASE --password=$$MYSQL_ROOT_PASSWORD --execute="SELECT count(table_name) > 0 FROM information_schema.tables;" --skip-column-names -B']
+      interval: 5s
+      timeout: 5s
+      retries: 40
     environment:
       MYSQL_DATABASE: "directus"
       MYSQL_USER: "directus"
@@ -13,10 +15,11 @@ services:
       MYSQL_ROOT_PASSWORD: "directus"
     ports:
       - "3306:3306"
-    networks:
-      - directus
 
   directus:
+    depends_on: 
+      mysql:
+        condition: service_healthy
     image: directus/directus:v8.6.2-apache
     ports:
       - "8080:80"
@@ -32,5 +35,3 @@ services:
     volumes:
       - ./data/config:/var/directus/config
       - ./data/uploads:/var/directus/public/uploads    
-    networks:
-      - directus
