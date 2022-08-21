@@ -1,4 +1,4 @@
-test: start_server unit stop_server
+e2e_test: start_server go_test stop_server
 
 start_server:
 	docker-compose pull
@@ -8,7 +8,7 @@ start_server:
 stop_server:
 	docker-compose down
 
-unit:
+go_test:
 	go test -count=1 ./...
 
 
