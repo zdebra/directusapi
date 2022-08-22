@@ -236,7 +236,6 @@ func iterateFields(t reflect.Type, prefix string) []string {
 
 // structFields returns fields for a signle struct field
 func structFields(f reflect.StructField, prefix string) []string {
-	fields := []string{}
 	tagVal := ""
 	if v, ok := f.Tag.Lookup(tagName); ok {
 		tagVal = v
@@ -245,13 +244,28 @@ func structFields(f reflect.StructField, prefix string) []string {
 	}
 	switch f.Type.Kind() {
 	case reflect.Struct:
-		p := prefix
-		if p != "" {
-			p = p + "." + tagVal
-		} else {
-			p = tagVal
+		var t Time
+		isTime := f.Type.ConvertibleTo(reflect.TypeOf(t))
+		isOptional := f.Type.Implements(reflect.TypeOf(new(isOpt)).Elem())
+		switch {
+		case isOptional:
+			if prefix == "" {
+				return []string{tagVal}
+			} else {
+				return []string{prefix + "." + tagVal}
+			}
+		case isTime:
+			return []string{prefix}
+		default:
+			p := prefix
+			if p != "" {
+				p = p + "." + tagVal
+			} else {
+				p = tagVal
+			}
+			return iterateFields(f.Type, p)
+
 		}
-		fields = append(fields, iterateFields(f.Type, p)...)
 	case
 		reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr, reflect.Float32, reflect.Float64, reflect.String,
@@ -261,11 +275,15 @@ func structFields(f reflect.StructField, prefix string) []string {
 		if prefix != "" {
 			v = prefix + "." + tagVal
 		}
-		fields = append(fields, v)
+		return []string{v}
 	case reflect.Pointer:
-		panic("pointer is not supported, use directus.Optional instead")
+		t := f.Type.Elem().String()
+		panic(f.Name + "(" + t + "," + prefix + "): pointer is not supported, use directus.Optional instead")
 	default:
 		panic(f.Type.Kind().String() + " not implemented")
 	}
-	return fields
+}
+
+type isOpt interface {
+	getOp() operation
 }

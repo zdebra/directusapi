@@ -30,8 +30,8 @@ type FruitR struct {
 	Status       string            `json:"status"`
 	Category     Category          `json:"category"`
 	Enabled      bool              `json:"enabled"`
-	Price        *float64          `json:"price"`
-	DiscoveredAt *Time             `json:"discovered_at"`
+	Price        Optional[float64] `json:"price"`
+	DiscoveredAt Optional[Time]    `json:"discovered_at"`
 	Area         []string          `json:"area"`
 	Favorites    map[string]string `json:"favorites"`
 	LeField      UserR             `json:"lefield"`
@@ -49,7 +49,7 @@ type FruitW struct {
 	Status       string            `json:"status"`
 	Category     Category          `json:"category"`
 	Enabled      bool              `json:"enabled"`
-	Price        *float64          `json:"price"`
+	Price        Optional[float64] `json:"price"`
 	DiscoveredAt Time              `json:"discovered_at"`
 	Area         []string          `json:"area"`
 	Favorites    map[string]string `json:"favorites"`
@@ -93,7 +93,7 @@ func TestFlow(t *testing.T) {
 			Status:       "published",
 			Category:     Green,
 			Enabled:      true,
-			Price:        &price,
+			Price:        SetOptional(price),
 			DiscoveredAt: Time{t1},
 			Area:         []string{"europe", "africa"},
 			Favorites: map[string]string{
@@ -108,8 +108,8 @@ func TestFlow(t *testing.T) {
 		assert.Equal(t, melon.Weight, 20)
 		assert.Equal(t, melon.Status, "published")
 		assert.Equal(t, melon.Enabled, true)
-		assert.Equal(t, &price, melon.Price)
-		assert.Equal(t, t1.Unix(), melon.DiscoveredAt.Unix())
+		assert.Equal(t, SetOptional(price), melon.Price)
+		assert.Equal(t, t1.Unix(), melon.DiscoveredAt.ValueOrZero().Unix())
 		assert.Equal(t, []string{"europe", "africa"}, melon.Area)
 		assert.Equal(t, map[string]string{
 			"josef": "10",
