@@ -149,8 +149,7 @@ func TestFlow(t *testing.T) {
 		assert.Equal(t, pasionfruit.Name, "pasionfruit")
 		assert.Equal(t, pasionfruit.Weight, 10)
 		assert.Equal(t, pasionfruit.Status, "published")
-		expectedPrice := float64(0)
-		assert.Equal(t, &expectedPrice, pasionfruit.Price)
+		assert.Equal(t, SetOptional[float64](0), pasionfruit.Price) // limitation of directus where number cannot be null if not set
 	})
 
 	t.Run("update partials", func(t *testing.T) {

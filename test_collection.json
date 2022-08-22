@@ -287,7 +287,7 @@
       "unique": false,
       "primary_key": false,
       "auto_increment": false,
-      "default_value": "0.00",
+      "default_value": null,
       "note": "",
       "signed": true,
       "type": "decimal",

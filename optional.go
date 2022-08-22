@@ -48,7 +48,8 @@ func (o Optional[T]) MarshalJSON() ([]byte, error) {
 	case unset:
 		return []byte(`null`), nil
 	default:
-		return nil, nil
+		// https://github.com/golang/go/issues/11939
+		return json.Marshal(nil)
 	}
 }
 
