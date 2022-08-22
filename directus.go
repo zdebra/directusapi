@@ -252,19 +252,18 @@ func structFields(f reflect.StructField, prefix string) []string {
 			p = tagVal
 		}
 		fields = append(fields, iterateFields(f.Type, p)...)
-	// case reflect.Pointer:
-	// 	element := f.Type.Elem()
-
 	case
 		reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr, reflect.Float32, reflect.Float64, reflect.String,
-		reflect.Slice, reflect.Map, reflect.Pointer:
+		reflect.Slice, reflect.Map:
 		// field is not nested
 		v := tagVal
 		if prefix != "" {
 			v = prefix + "." + tagVal
 		}
 		fields = append(fields, v)
+	case reflect.Pointer:
+		panic("pointer is not supported, use directus.Optional instead")
 	default:
 		panic(f.Type.Kind().String() + " not implemented")
 	}
