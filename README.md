@@ -21,7 +21,6 @@ Types support
 - [x] float
 - [x] time
 - [x] boolean
-- [x] pointers
 - [x] array
 - [x] object (there are known issues, I was only able to make it working with map[string]string)
 - [] reference
@@ -55,3 +54,4 @@ Other
 - no custom json.Marshaler implementations are supported because the tool determines all cms fields based on struct json tags
 - no custom tag for determining fields since custom json unmarshal is hard and error prone
 - custom directusapi.Time implementation has to be used for datetime files
+- limitation of directus where DECIMAL cannot be null if not set

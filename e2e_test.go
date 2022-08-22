@@ -35,7 +35,7 @@ type FruitR struct {
 	Area         []string          `json:"area"`
 	Favorites    map[string]string `json:"favorites"`
 	LeField      UserR             `json:"lefield"`
-	// Poc          *UserR            `json:"poc"`
+	Poc          Optional[UserR]   `json:"poc"`
 }
 
 type UserR struct {
@@ -54,7 +54,7 @@ type FruitW struct {
 	Area         []string          `json:"area"`
 	Favorites    map[string]string `json:"favorites"`
 	LeFieldRef   int               `json:"lefield"`
-	// PocID        *int              `json:"poc"`
+	PocID        Optional[int]     `json:"poc"`
 }
 
 func TestFlow(t *testing.T) {
@@ -100,7 +100,7 @@ func TestFlow(t *testing.T) {
 				"josef": "10",
 			},
 			LeFieldRef: 1,
-			// PocID:      lo.ToPtr(1),
+			PocID:      UnsetOptional[int](),
 		})
 		require.NoError(t, err)
 		assert.NotEmpty(t, melon.ID)
@@ -118,10 +118,7 @@ func TestFlow(t *testing.T) {
 			ID:    1,
 			Email: email,
 		}, melon.LeField)
-		// assert.Equal(t, &UserR{
-		// 	ID:    1,
-		// 	Email: email,
-		// }, melon.Poc)
+		assert.Equal(t, UnsetOptional[UserR](), melon.Poc)
 		watermelonID = melon.ID
 	})
 
@@ -142,14 +139,16 @@ func TestFlow(t *testing.T) {
 			Weight:     10,
 			Status:     "published",
 			LeFieldRef: 1,
+			PocID:      SetOptional(1),
 		}
 		pasionfruit, err := api.Set(ctx, watermelonID, melonRepl)
 		require.NoError(t, err)
-		assert.Equal(t, pasionfruit.ID, watermelonID)
-		assert.Equal(t, pasionfruit.Name, "pasionfruit")
-		assert.Equal(t, pasionfruit.Weight.ValueMust(), 10)
-		assert.Equal(t, pasionfruit.Status, "published")
-		assert.Equal(t, SetOptional[float64](0), pasionfruit.Price) // limitation of directus where number cannot be null if not set
+		assert.Equal(t, watermelonID, pasionfruit.ID)
+		assert.Equal(t, "pasionfruit", pasionfruit.Name)
+		assert.Equal(t, 10, pasionfruit.Weight.ValueMust())
+		assert.Equal(t, "published", pasionfruit.Status)
+		assert.Equal(t, SetOptional[float64](0), pasionfruit.Price) // limitation of directus where DECIMAL cannot be null if not set
+		assert.Equal(t, SetOptional(UserR{ID: 1, Email: "email@example.com"}), pasionfruit.Poc)
 	})
 
 	t.Run("update partials", func(t *testing.T) {

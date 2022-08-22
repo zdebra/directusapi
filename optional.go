@@ -2,6 +2,7 @@ package directusapi
 
 import (
 	"encoding/json"
+	"reflect"
 )
 
 type Optional[T any] struct {
@@ -73,6 +74,25 @@ func (o Optional[T]) getOp() operation {
 	return o.op
 }
 
+func (o Optional[T]) fields(prefix string) []string {
+	var optVal T
+	f := reflect.TypeOf(optVal)
+
+	if f.Kind() == reflect.Struct {
+		var t Time
+		isTime := f.ConvertibleTo(reflect.TypeOf(t))
+		isOptional := f.Implements(reflect.TypeOf(new(isOpt)).Elem())
+		if isOptional {
+			panic("optional of optional is not supported")
+		}
+		if isTime {
+			return []string{prefix}
+		}
+		return iterateFields(f, prefix)
+	}
+	return []string{prefix}
+}
+
 // 1. don't touch the value
 // 		=> zero value of Optional[T]
 // 2. unset the value (null)
@@ -87,5 +107,3 @@ const (
 	unset
 	set
 )
-
-// note: Optional for Writes vs Optionals for Reads

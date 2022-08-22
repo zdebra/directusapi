@@ -249,10 +249,11 @@ func structFields(f reflect.StructField, prefix string) []string {
 		isOptional := f.Type.Implements(reflect.TypeOf(new(isOpt)).Elem())
 		switch {
 		case isOptional:
+			val := reflect.New(f.Type).Interface().(isOpt)
 			if prefix == "" {
-				return []string{tagVal}
+				return val.fields(tagVal)
 			} else {
-				return []string{prefix + "." + tagVal}
+				return val.fields(prefix + "." + tagVal)
 			}
 		case isTime:
 			return []string{prefix}
@@ -286,4 +287,5 @@ func structFields(f reflect.StructField, prefix string) []string {
 
 type isOpt interface {
 	getOp() operation
+	fields(prefix string) []string
 }

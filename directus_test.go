@@ -22,6 +22,8 @@ func TestJsonFields(t *testing.T) {
 		"favorites",
 		"lefield.id",
 		"lefield.email",
+		"poc.id",
+		"poc.email",
 	}
 	jsonFields := api.jsonFieldsR()
 	assert.Equal(t, expected, jsonFields)
