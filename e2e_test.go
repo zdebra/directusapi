@@ -26,7 +26,7 @@ const (
 type FruitR struct {
 	ID           int               `json:"id"`
 	Name         string            `json:"name"`
-	Weight       int               `json:"weight"`
+	Weight       Optional[int]     `json:"weight"`
 	Status       string            `json:"status"`
 	Category     Category          `json:"category"`
 	Enabled      bool              `json:"enabled"`
@@ -104,10 +104,10 @@ func TestFlow(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.NotEmpty(t, melon.ID)
-		assert.Equal(t, melon.Name, "watermelon")
-		assert.Equal(t, melon.Weight, 20)
-		assert.Equal(t, melon.Status, "published")
-		assert.Equal(t, melon.Enabled, true)
+		assert.Equal(t, "watermelon", melon.Name)
+		assert.Equal(t, 20, melon.Weight.ValueMust())
+		assert.Equal(t, "published", melon.Status)
+		assert.Equal(t, true, melon.Enabled)
 		assert.Equal(t, SetOptional(price), melon.Price)
 		assert.Equal(t, t1.Unix(), melon.DiscoveredAt.ValueOrZero().Unix())
 		assert.Equal(t, []string{"europe", "africa"}, melon.Area)
@@ -130,7 +130,7 @@ func TestFlow(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, melon.ID, watermelonID)
 		assert.Equal(t, melon.Name, "watermelon")
-		assert.Equal(t, melon.Weight, 20)
+		assert.Equal(t, melon.Weight.ValueMust(), 20)
 		assert.Equal(t, melon.Status, "published")
 		assert.Equal(t, melon.Category, Green)
 		assert.Equal(t, melon.Enabled, true)
@@ -147,7 +147,7 @@ func TestFlow(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, pasionfruit.ID, watermelonID)
 		assert.Equal(t, pasionfruit.Name, "pasionfruit")
-		assert.Equal(t, pasionfruit.Weight, 10)
+		assert.Equal(t, pasionfruit.Weight.ValueMust(), 10)
 		assert.Equal(t, pasionfruit.Status, "published")
 		assert.Equal(t, SetOptional[float64](0), pasionfruit.Price) // limitation of directus where number cannot be null if not set
 	})
@@ -160,7 +160,7 @@ func TestFlow(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, pasionfruit.ID, watermelonID)
 		assert.Equal(t, pasionfruit.Name, "pasionfruit")
-		assert.Equal(t, pasionfruit.Weight, 10)
+		assert.Equal(t, pasionfruit.Weight.ValueMust(), 10)
 		assert.Equal(t, pasionfruit.Status, "draft")
 		assert.Equal(t, pasionfruit.Category, Blue)
 	})
@@ -180,7 +180,7 @@ func TestFlow(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotEmpty(t, peach.ID)
 		assert.Equal(t, "peach", peach.Name)
-		assert.Empty(t, peach.Weight)
+		assert.False(t, peach.Weight.IsSet())
 		assert.Equal(t, UserR{
 			ID:    1,
 			Email: email,
