@@ -23,7 +23,7 @@ Types support
 - [x] boolean
 - [x] array
 - [x] object (there are known issues, I was only able to make it working with map[string]string)
-- [] reference
+- [x] reference
 - [] array of objects (repeater)
 
 Error handling
@@ -32,10 +32,10 @@ Error handling
 
 Testing
 
-- [] e2e tests working locally
-- [] e2e tests working in CI
+- [x] e2e tests working locally
+- [x] e2e tests working in CI
 - [] compatibility with directus v9
-- [] insert vs set
+- [x] insert vs set
 
 Batch operations
 
