@@ -3,6 +3,8 @@
 This is generics golang client for [Directus](https://directus.io/) v8 CMS. Never write the same API client again.
 Just define your collection model and use strongly typed methods.
 
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/zdebra/directusapi)](https://pkg.go.dev/github.com/zdebra/directusapi) [![Go Report Card](https://goreportcard.com/badge/github.com/zdebra/directusapi)](https://goreportcard.com/report/github.com/zdebra/directusapi)
+
 ---
 
 ## Example usage
