@@ -79,6 +79,11 @@ go get github.com/zdebra/directusapi
 - pointers are not allowed in your Read and Write models, `directusapi.Optional` should be used for optional fields
 - `directusapi.Time` has to be used instead of `time.Time`
 
+## Next steps
+
+- [ ] update/create partials to be removed as it could be replaced with `directusapi.Optional`
+- [ ] add godoc examples
+
 ## License
 
 > You can check out the full license [here](https://github.com/zdebra/directusapi/blob/master/LICENSE)
