@@ -10,14 +10,14 @@ Just define your collection model and use strongly typed methods.
 ```go
 // define Read and Write model
 type FruitR struct {
-	ID           int               `json:"id"`
-	Name         string            `json:"name"`
-    Weight       float64           `json:"weight"`
+    ID          int             `json:"id"`
+    Name        string          `json:"name"`
+    Weight      float64         `json:"weight"`
 }
 
 type FruitW struct {
-	Name         string            `json:"name"`
-    Weight       float64           `json:"weight"`
+    Name        string          `json:"name"`
+    Weight      float64         `json:"weight"`
 }
 
 // initialize generic API client
@@ -53,8 +53,6 @@ passionfruit, err := api.Set(ctx, watermelonID, FruitW{
 
 Go to the documentation to see all available methods.
 
----
-
 ## Features
 
 - strongly-typed API methods based on [directus reference](https://v8.docs.directus.io/api/reference.html)
@@ -63,17 +61,13 @@ Go to the documentation to see all available methods.
 - custom `directusapi.Time` to support Directus API time format
 - custom `directusapi.Optional` to support optional fields
 
----
-
 ## What is Directus?
 
 [Directus](https://directus.io/) is open sourced Content Management System, it has UI and exposed API for dynamicly created collections.
 
----
-
 ## Setup
 
----
+- todo
 
 ## Limitations
 
@@ -81,15 +75,11 @@ Go to the documentation to see all available methods.
 - pointers are not allowed in your Read and Write models, `directusapi.Optional` should be used for optional fields
 - `directusapi.Time` has to be used instead of `time.Time`
 
----
-
 ## License
 
 > You can check out the full license [here](https://github.com/zdebra/directusapi/blob/master/LICENSE)
 
 This project is licensed under the terms of the **MIT** license.
-
----
 
 ## Buy me a coffee
 
