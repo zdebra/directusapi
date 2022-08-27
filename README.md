@@ -1,57 +1,98 @@
-# directusapi
+# Directus API client
 
-todo:
+This is generics golang client for [Directus](https://directus.io/) v8 CMS. Never write the same API client again.
+Just define your collection model and use strongly typed methods.
 
-API methods
+---
 
-- [x] Authenticate
-- [x] List Item
-- [x] Insert
-- [x] Create (partials)
-- [x] Get By ID
-- [x] Delete
-- [x] Set Item
-- [x] Update (partials)
+## Example usage
 
-Types support
+```go
+// define Read and Write model
+type FruitR struct {
+	ID           int               `json:"id"`
+	Name         string            `json:"name"`
+    Weight       float64           `json:"weight"`
+}
 
-- [x] generic id
-- [x] enumeration string constants
-- [x] string as primary key
-- [x] float
-- [x] time
-- [x] boolean
-- [x] array
-- [x] object (there are known issues, I was only able to make it working with map[string]string)
-- [x] reference
-- [] array of objects (repeater)
+type FruitW struct {
+	Name         string            `json:"name"`
+    Weight       float64           `json:"weight"`
+}
 
-Error handling
+// initialize generic API client
+api := API[FruitR, FruitW, int]{
+    Scheme:         "http",
+    Host:           "localhost:8080",
+    Namespace:      "_",
+    CollectionName: "fruits",
+    HTTPClient:     http.DefaultClient,
+    BearerToken:    "1a2bd3db-8026-4494-ad36-9873ee46c0af"
+}
 
-- [] missing required input field for create/insert/update/set
+// use typed methods
+// - insert
+watermelon, err := api.Insert(ctx, FruitW{
+	Name:         "watermelon",
+	Weight:       20.3,
+})
+// watermelon's type is FruitR
 
-Testing
+// - retrieve collection of items
+fruits, err := api.Items(ctx, None())
+// fruits's type is []FruitR
 
-- [x] e2e tests working locally
-- [x] e2e tests working in CI
-- [] compatibility with directus v9
-- [x] insert vs set
+// update (set) item
+passionfruit, err := api.Set(ctx, watermelonID, FruitW{
+	Name:         "passionfruit",
+	Weight:       3.3,
+})
+// passionfruit's type is FruitR
 
-Batch operations
+```
 
-- [] batch update
-- [] batch insert
-- [] batch delete
+Go to the documentation to see all available methods.
 
-Other
+---
 
-- [] godoc
-- [] fileupload
-- [] embeded structs as W or R
+## Features
 
-# Known limitations
+- strongly-typed API methods based on [directus reference](https://v8.docs.directus.io/api/reference.html)
+- different models for reads and writes
+- collection querying support: filtering, sorting, limit, offset, fulltext search
+- custom `directusapi.Time` to support Directus API time format
+- custom `directusapi.Optional` to support optional fields
 
-- no custom json.Marshaler implementations are supported because the tool determines all cms fields based on struct json tags
-- no custom tag for determining fields since custom json unmarshal is hard and error prone
-- custom directusapi.Time implementation has to be used for datetime files
-- limitation of directus where DECIMAL cannot be null if not set
+---
+
+## What is Directus?
+
+[Directus](https://directus.io/) is open sourced Content Management System, it has UI and exposed API for dynamicly created collections.
+
+---
+
+## Setup
+
+---
+
+## Limitations
+
+- directus v9 is not supported at this moment; this library was developed for directus v8
+- pointers are not allowed in your Read and Write models, `directusapi.Optional` should be used for optional fields
+- `directusapi.Time` has to be used instead of `time.Time`
+
+---
+
+## License
+
+> You can check out the full license [here](https://github.com/zdebra/directusapi/blob/master/LICENSE)
+
+This project is licensed under the terms of the **MIT** license.
+
+---
+
+## Buy me a coffee
+
+Whether you use this project, have learned something from it, or just like it, please consider supporting it by buying me a coffee, so I can dedicate more time on open-source projects like this :)
+
+<a href="https://www.buymeacoffee.com/zdebra" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
