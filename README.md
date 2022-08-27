@@ -67,7 +67,9 @@ Go to the documentation to see all available methods.
 
 ## Setup
 
-- todo
+```sh
+go get github.com/zdebra/directusapi
+```
 
 ## Limitations
 
