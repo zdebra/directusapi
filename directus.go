@@ -23,6 +23,7 @@ type API[R, W any, PK PrimaryKey] struct {
 	CollectionName string
 	BearerToken    string
 	HTTPClient     *http.Client
+	queryFields    []string
 	debug          bool
 }
 
@@ -249,15 +250,13 @@ func (d API[R, W, PK]) Items(ctx context.Context, q query) ([]R, error) {
 	return respBody.Data, nil
 }
 
-var fieldsR []string
-
-func (d API[R, W, PK]) jsonFieldsR() []string {
-	if fieldsR == nil {
+func (d *API[R, W, PK]) jsonFieldsR() []string {
+	if d.queryFields == nil {
 		var x R
 		t := reflect.TypeOf(x)
-		fieldsR = iterateFields(t, "")
+		d.queryFields = iterateFields(t, "")
 	}
-	return fieldsR
+	return d.queryFields
 }
 
 // iterateFields returns fields for all struct's fields
