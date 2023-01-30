@@ -300,12 +300,22 @@ func structFields(f reflect.StructField, prefix string) []string {
 				p = tagVal
 			}
 			return iterateFields(f.Type, p)
-
 		}
+	case reflect.Slice:
+		p := prefix
+		if p != "" {
+			p = p + "." + tagVal
+		} else {
+			p = tagVal
+		}
+		if f.Type.Elem().Kind() == reflect.Struct {
+			return iterateFields(f.Type.Elem(), p)
+		}
+		return []string{p}
 	case
 		reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr, reflect.Float32, reflect.Float64, reflect.String,
-		reflect.Slice, reflect.Map:
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr, reflect.Float32, reflect.Float64,
+		reflect.String, reflect.Map:
 		// field is not nested
 		v := tagVal
 		if prefix != "" {
