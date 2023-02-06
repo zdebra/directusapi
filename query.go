@@ -8,6 +8,7 @@ import (
 type query struct {
 	eqFilter    map[string]string
 	nEqFilter   map[string]string
+	inFilter    map[string]string
 	nNullFilter []string
 	sort        []string
 	limit       *int
@@ -17,6 +18,7 @@ type query struct {
 
 func None() query {
 	return query{
+		map[string]string{},
 		map[string]string{},
 		map[string]string{},
 		[]string{},
@@ -51,6 +53,15 @@ func (q query) Eq(k, v string) query {
 
 func Eq(k, v string) query {
 	return None().Eq(k, v)
+}
+
+func (q query) In(k, v string) query {
+	q.inFilter[k] = v
+	return q
+}
+
+func In(k, v string) query {
+	return None().In(k, v)
 }
 
 func (q query) SortAsc(sortBy string) query {
@@ -105,6 +116,9 @@ func (q query) asKeyValue() map[string]string {
 	}
 	for k, v := range q.nEqFilter {
 		out[fmt.Sprintf("filter[%s][neq]", k)] = v
+	}
+	for k, v := range q.inFilter {
+		out[fmt.Sprintf("filter[%s][in]", k)] = v
 	}
 	for _, v := range q.nNullFilter {
 		out[fmt.Sprintf("filter[%s][nnull]", v)] = ""
