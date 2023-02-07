@@ -113,10 +113,10 @@ func (q query) asKeyValue() map[string]string {
 		out["sort"] = strings.Join(q.sort, ",")
 	}
 	if q.limit != nil {
-		out["limit"] = fmt.Sprint(q.limit)
+		out["limit"] = fmt.Sprint(*q.limit)
 	}
 	if q.offset != nil {
-		out["offset"] = fmt.Sprint(q.offset)
+		out["offset"] = fmt.Sprint(*q.offset)
 	}
 	return out
 }
