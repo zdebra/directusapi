@@ -8,6 +8,13 @@ import (
 	"strings"
 )
 
+type Version int
+
+const (
+	V8 Version = iota
+	V9
+)
+
 type PrimaryKey interface {
 	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~string
 }
@@ -25,6 +32,7 @@ type API[R, W any, PK PrimaryKey] struct {
 	HTTPClient     *http.Client
 	queryFields    []string
 	debug          bool
+	Version        Version
 }
 
 // CreateToken uses provided credentials to generate server token
@@ -230,7 +238,7 @@ func (d API[R, W, PK]) Delete(ctx context.Context, id PK) error {
 // https://v8.docs.directus.io/api/items.html#update-an-item
 func (d API[R, W, PK]) Items(ctx context.Context, q query) ([]R, error) {
 	u := fmt.Sprintf("%s://%s/%s/items/%s", d.Scheme, d.Host, d.Namespace, d.CollectionName)
-	qv := q.asKeyValue()
+	qv := q.asKeyValue(d.Version)
 	qv["fields"] = strings.Join(d.jsonFieldsR(), ",")
 
 	req := request{
